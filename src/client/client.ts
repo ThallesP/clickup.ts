@@ -1,3 +1,4 @@
+import { TeamManager } from "../managers/TeamManager.js";
 import { TimeTrackingManager } from "../managers/TimeTrackingManager.js";
 
 export type Auth = {
@@ -14,7 +15,9 @@ export class Client {
     this.#auth = auth;
 
     this.timeTracking = new TimeTrackingManager({ auth: this.#auth });
+    this.team = new TeamManager({ auth: this.#auth });
   }
 
   timeTracking: TimeTrackingManager;
+  team: TeamManager;
 }

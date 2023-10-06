@@ -5,12 +5,14 @@ import { Auth } from "../client/client.js";
 
 export type GetTimeTrackingEntriesProps = {
   teamId: string;
-  startDate?: Date;
-  endDate?: Date;
+  startDate?: number;
+  endDate?: number;
+  assignee?: string;
 };
 
 export type GetTimeTrackingRunningProps = {
   teamId: string;
+  assignee?: string;
 };
 
 export type TimeTrackingManagerProps = {
@@ -33,25 +35,34 @@ export class TimeTrackingManager {
     teamId,
     startDate,
     endDate,
+    assignee,
   }: GetTimeTrackingEntriesProps) {
     const {
       data: { data: timeTracking },
     } = await this.client.get<ClickUpData<TimeTracking[]>>(
       `/team/${teamId}/time_entries`,
       {
-        params: { startDate, endDate },
+        params: { start_date: startDate, end_date: endDate, assignee },
       }
     );
 
     return timeTracking.map((t) => new TimeTracking(t));
   }
 
-  async getTimeTrackingRunning({ teamId }: GetTimeTrackingRunningProps) {
+  async getTimeTrackingRunning({
+    teamId,
+    assignee,
+  }: GetTimeTrackingRunningProps): Promise<TimeTracking | null> {
     const {
       data: { data: timeTracking },
     } = await this.client.get<ClickUpData<TimeTracking>>(
-      `/team/${teamId}/time_entries/current`
+      `/team/${teamId}/time_entries/current`,
+      {
+        params: { assignee },
+      }
     );
+
+    if (!timeTracking) return null;
 
     return new TimeTracking(timeTracking);
   }
